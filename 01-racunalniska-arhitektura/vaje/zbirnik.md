@@ -6,13 +6,70 @@ Pri vseh nalogah se vam pod razdelkom **RAM** splača nastaviti _View_ na _Decim
 
 Zapišite program, ki v register `A` zapiše ostanek pri deljenju registra `A` z registrom `B`.
 
+Program:
+
+MOV A, 9;
+; v register C shranim originalno vrednost A
+MOV C, A;
+MOV B, 2;
+; vrednost v registru A delim z vrednostjo v registru B
+DIV B;
+; že deljeno vrednost v registru A nato pomnožim z B
+MUL B;
+; od originalne vrednosti registra A, shranjene v C odštejem zgornji produkt
+SUB C, A;
+; na koncu samo še shranim ostanek v register A
+MOV A, C;
+
+Modificiran program s funkcijo:
+
+; koda naredi isto kot prejšnja, le da je zapisana v funkcijo
+; argumenta funkcije sta shranjena v registrih A in B
+; funkcija nato zapiše ostanek pri deljenju v register C
+
+MOV A, 9;
+MOV B, 2;
+ostanek:
+	MOV C, A;
+	DIV B;
+	MUL B;
+	SUB C, A;
+
+
+
 ## Zaporedna števila
 
 Zapišite program, ki na sklad zaporedno postavlja števila od 13 do 42.
 
+Program:
+
+; najprej shranim števili v registra A in B
+MOV A, 13;
+MOV B, 42;
+; vrednost iz registra A shranim v sklad
+PUSH A;
+
+; v zanki se A najprej poveča za 1, potem se shrani na sklad, preveri ali je enaka vrednosti v registru B in nato se zanka nadaljuje
+.loop:
+	INC A;
+	PUSH A; 
+	CMP A, B;
+	JNZ .loop;
+
 ## Menjava pomnilniških celic
 
 Zapišite program, ki zamenja vsebini pomnilniških celic na naslovih `[A]` in `[B]`.
+
+Program:
+
+; koda zamenja vrednosti v registrih A in B, pri tem si vrednost 
+;registra A zapomni v registru C, sicer bi se vrednost izgubila
+MOV A, 5;
+MOV B, 6;
+MOV C, A;
+MOV A, B;
+MOV B, C;
+
 
 ## Iskanje najmanjšega števila v seznamu
 
