@@ -19,13 +19,13 @@
  Namig: Občudujte informativnost tipov funkcij.
 [*----------------------------------------------------------------------------*)
 
-type euro 
+type euro = Euro of float
+type dollar = Dollar of float
 
-type dollar 
+let euro_to_dollar (Euro e) = Dollar (e *. 1.08)
 
-let dollar_to_euro _ = ()
+let dollar_to euro (Dollar d) = Euro (d *. 0.92)
 
-let euro_to_dollar _ = ()
 
 (* let primer_valute_1 = dollar_to_euro (Dollar 0.5) *)
 (* val primer_valute_1 : euro = Euro 0.4305 *)
@@ -39,9 +39,17 @@ let euro_to_dollar _ = ()
  Ocaml sam opozori, da je potrebno popraviti funkcijo `to_pound`.
 [*----------------------------------------------------------------------------*)
 
-type currency 
+type currency = 
+ | Yen of float
+ | Pound of float
+ | Krona of float
+ | Frank of float
 
-let to_pound _ = ()
+let to_pound = function
+ | Yen y -> Pound (y *. 0.0051)
+ | Krona k -> Pound (k *. 0.89)
+ | Pound p -> Pound p
+ | Frank f -> Pound (f *. 0.89)
 
 (* let primer_valute_2 = to_pound (Yen 100.) *)
 (* val primer_valute_2 : currency = Pound 0.700000000000000067 *)
