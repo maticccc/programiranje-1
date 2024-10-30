@@ -77,24 +77,35 @@ let to_pound = function
  Nato napišite testni primer, ki bi predstavljal `[5; true; false; 7]`.
 [*----------------------------------------------------------------------------*)
 
-type intbool_list 
+type intbool_list = 
+  | Nil
+  | Int of int * intbool_list
+  | Bool of bool * intbool_list
 
-let test = ()
 
+let test =  Int(5, Bool(true, Bool(false, Int(7, Nil))))
+let test2 = Bool(true, Int(69, Bool(false, Int(17, Nil))))
 (*----------------------------------------------------------------------------*
  Funkcija `intbool_map f_int f_bool ib_list` preslika vrednosti `ib_list` v nov
  `intbool_list` seznam, kjer na elementih uporabi primerno od funkcij `f_int`
  oz. `f_bool`.
 [*----------------------------------------------------------------------------*)
 
-let rec intbool_map _ _ _ = ()
-
+let rec intbool_map f_int f_bool ib_list = function
+  | Int(x, xs) -> Int(f_int x, intbool_map f_int f_bool xs)
+  | Bool(x, xs) -> Bool(f_bool x, intbool_map f_int f_bool xs)
+  | Nil -> Nil
 (*----------------------------------------------------------------------------*
  Funkcija `intbool_reverse` obrne vrstni red elementov `intbool_list` seznama.
  Funkcija je repno rekurzivna.
 [*----------------------------------------------------------------------------*)
 
-let rec intbool_reverse _ = ()
+let rec intbool_reverse ib_list = 
+  let rec ib_reverse acc = function
+    | Int(x, xs) -> ib_reverse (Int(x, acc)) xs
+    | Bool(x, xs) -> ib_reverse (Bool(x, acc)) xs
+    | Nil -> acc
+in ib_reverse Nil ib_list
 
 (*----------------------------------------------------------------------------*
  Funkcija `intbool_separate ib_list` loči vrednosti `ib_list` v par `list`
@@ -102,8 +113,13 @@ let rec intbool_reverse _ = ()
  vrednosti. Funkcija je repno rekurzivna in ohranja vrstni red elementov.
 [*----------------------------------------------------------------------------*)
 
-let rec intbool_separate _ = ()
-
+let rec intbool_separate ib_list =
+  let rec ib_separate iacc bacc = function
+  | Int(x, xs) -> ib_separate (x :: iacc) bacc xs
+  | Bool(x, xs) -> ib_separate iacc (x :: bacc) xs
+  | Nil -> (iacc, bacc)
+  in
+  ib_separate [] [] (intbool_reverse ib_list)
 (*----------------------------------------------------------------------------*
  ## Čarodeji
 
