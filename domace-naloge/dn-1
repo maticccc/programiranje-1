@@ -112,6 +112,8 @@ let primer_1_8 =
 [*----------------------------------------------------------------------------*)
 
 type ('a, 'b) sum = In1 of 'a | In2 of 'b
+(*POMEMBNO: ČE ŽELIŠ VEDETI ALI FUNKCIJA DELUJE PRAVILNO, JI VNAPREJ DEFINIRAJ TIP!!!!*)
+
 
 (*----------------------------------------------------------------------------*
  Napišite pare funkcij `phi1` & `psi1`, …, `phi7` & `psi7`, ki predstavljajo
@@ -123,7 +125,7 @@ type ('a, 'b) sum = In1 of 'a | In2 of 'b
  ### $A \times B \cong B \times A$
 [*----------------------------------------------------------------------------*)
 
-let phi1 _ = ()
+(*let phi1 : ('a, 'b) sum -> ('b, 'a) sum = *)
 let psi1 _ = ()
 
 (*----------------------------------------------------------------------------*
