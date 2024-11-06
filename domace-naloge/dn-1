@@ -582,7 +582,7 @@ let besede = "the of to and a in is it you that he was for on are with as i his 
  pretvorjene v velike tiskane črke.
 [*----------------------------------------------------------------------------*)
 
-let slovar = []
+let slovar = String.split_on_char ' ' besede |> List.map String.uppercase_ascii
 
 let primer_5_7 = take 42 slovar
 (* val primer_5_7 : string list =
