@@ -15,30 +15,89 @@
  število iz celega števila.
 [*----------------------------------------------------------------------------*)
 
+(* definicija signature modula Nat_int *)
 module type NAT = sig
-  type t
+  (*osnovni tip je samo napišeš*)
+  type t 
 
+  (*funkcija enakosti*)
   val eq  : t -> t -> bool
   val zero : t
-  (* Dodajte manjkajoče! *)
+  val one : t
+  val plus : t -> t -> t
+  val minus : t -> t -> t
+  val times : t -> t -> t
+
   (* val to_int : t -> int *)
+  val to_int : t -> int
+
   (* val of_int : int -> t *)
+  val of_int : int -> t
+
 end
 
 (*----------------------------------------------------------------------------*
  Napišite implementacijo modula `Nat_int`, ki zgradi modul s signaturo `NAT`,
  kjer kot osnovni tip uporablja OCamlov tip `int`. Namig: dokler ne
- implementirate vse funkcij v `Nat_int`, se bo OCaml pritoževal. Temu se lahko
+ implementirate vseh funkcij v `Nat_int`, se bo OCaml pritoževal. Temu se lahko
  izognete tako, da funkcije, ki še niso napisane nadomestite z `failwith
  "later"`, vendar to ne deluje za konstante.
 [*----------------------------------------------------------------------------*)
 
 module Nat_int : NAT = struct
+  (* zdaj imamo definiran tip *)
+  type t = 
+  | Zero
+  | Succ of t
 
-  type t = int
-  let eq x y = failwith "later"
-  let zero = 0
-  (* Dodajte manjkajoče! *)
+  let zero = Zero
+  let one = Succ Zero
+
+  (* enakost bo v bistvu en match *)
+  (* funkcija bo zmanjševala vhodna podatka x in y, dokler ne pride do enega od treh robnih primerov - takrat pa vrne true ali false *)
+  let rec eq (x : t)  (y : t) = x == y
+
+  (* funkcija seštevanja *)
+  (* robna primera sta, ko na eni ali drugi strani prištevamo 0 *)
+  (* sicer pa na številu y kličem funkcijo Succ tolikokrat, kolikor je veliko število x *)
+  let rec plus (x : t) (y : t) = match x, y with
+    | Zero, y -> y
+    | x, Zero -> x
+    | Succ x', y -> Succ (plus x' y)
+
+  (* funkcija odštevanja *)
+  (* če od 0 odštevamo karkoli, bomo vrnili kar 0, ker smo v naravnih številih *)
+  (* sicer pa rekurzivno kličem funkcijo minus, dokler ne pridem do enega od robnih primerov *)
+  let rec minus x y = match x, y with
+    | Zero, _ -> Zero
+    | x, Zero -> x
+    | Succ x', Succ y' -> minus x' y'
+  
+  (* funkcija množenja *)
+  let rec times x y = match x, y with
+    | Zero, y -> Zero
+    | x, Zero -> Zero
+    | Succ x', Succ y' -> Succ (plus x' (times x y'))
+
+  (* iz naravnega števila vrne celo število *)
+  (* ko dosežem 0, vrne acc. Sicer pa funkcija vsakič vzame predhodnika x-a in acc prišteje 1 *)
+  let to_int (x : t) =
+    let rec aux acc = function
+      | Zero -> acc
+      | Succ x' -> aux (acc + 1) x'
+  in
+  aux 0 x
+
+(* iz celega števila vrne naravno število *)
+(* na Zero kličem funkcijo Succ tolikokrat, kolikor je veliko število x *)
+let of_int (x : int) = match x with
+ | 0 -> Zero
+ | x -> 
+  let rec aux acc x = match x with
+    | 0 -> acc
+    | x -> aux (Succ acc) (x - 1) 
+ in
+  aux Zero x
 
 end
 
@@ -52,11 +111,64 @@ end
 [*----------------------------------------------------------------------------*)
 
 module Nat_peano : NAT = struct
+  (* zdaj imamo definiran tip *)
+  type t = 
+  | Zero
+  | Succ of t
 
-  type t = unit (* To morate spremeniti! *)
-  let eq x y = failwith "later"
-  let zero = () (* To morate spremeniti! *)
-  (* Dodajte manjkajoče! *)
+  let zero = Zero
+  let one = Succ Zero
+
+  
+  (* enakost bo v bistvu en match *)
+  (* funkcija bo zmanjševala vhodna podatka x in y, dokler ne pride do enega od treh robnih primerov - takrat pa vrne true ali false *)
+  let rec eq (x : t)  (y : t) = match x, y with
+    | Zero, Zero -> true
+    | Succ _, Zero -> false
+    | Zero, Succ _ -> false
+    | Succ x', Succ y' -> eq x' y'
+
+  (* funkcija seštevanja *)
+  (* robna primera sta, ko na eni ali drugi strani prištevamo 0 *)
+  (* sicer pa na številu y kličem funkcijo Succ tolikokrat, kolikor je veliko število x *)
+  let rec plus (x : t) (y : t) = match x, y with
+    | Zero, y -> y
+    | x, Zero -> x
+    | Succ x', y -> Succ (plus x' y)
+
+  (* funkcija odštevanja *)
+  (* če od 0 odštevamo karkoli, bomo vrnili kar 0, ker smo v naravnih številih *)
+  (* sicer pa rekurzivno kličem funkcijo minus, dokler ne pridem do enega od robnih primerov *)
+  let rec minus x y = match x, y with
+    | Zero, _ -> Zero
+    | x, Zero -> x
+    | Succ x', Succ y' -> minus x' y'
+  
+  (* funkcija množenja *)
+  let rec times x y = match x, y with
+    | Zero, y -> Zero
+    | x, Zero -> Zero
+    | Succ x', Succ y' -> Succ (plus x' (times x y'))
+
+  (* iz naravnega števila vrne celo število *)
+  (* ko dosežem 0, vrne acc. Sicer pa funkcija vsakič vzame predhodnika x-a in acc prišteje 1 *)
+  let to_int (x : t) =
+    let rec aux acc = function
+      | Zero -> acc
+      | Succ x' -> aux (acc + 1) x'
+  in
+  aux 0 x
+
+(* iz celega števila vrne naravno število *)
+(* na Zero kličem funkcijo Succ tolikokrat, kolikor je veliko število x *)
+let of_int (x : int) = match x with
+ | 0 -> Zero
+ | x -> 
+  let rec aux acc x = match x with
+    | 0 -> acc
+    | x -> aux (Succ acc) (x - 1) 
+ in
+  aux Zero x
 
 end
 
@@ -76,12 +188,15 @@ end
  `Nat`.
 [*----------------------------------------------------------------------------*)
 
-let sum_nat_100 = 
+(*let sum_nat_100 = 
   (* let module Nat = Nat_int in *)
   let module Nat = Nat_peano in
-  Nat.zero (* to popravite na ustrezen izračun *)
-  (* |> Nat.to_int *)
+  (* to popravite na ustrezen izračun *)
+    let rec sum n = match n with
+      | Zero -> Zero
+      | Succ n' -> Nat.plus n (sum n') |> Nat.to_int 
 (* val sum_nat_100 : int = 5050 *)
+*)
 
 (*----------------------------------------------------------------------------*
  ## Kompleksna števila

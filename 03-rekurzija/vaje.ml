@@ -17,7 +17,12 @@
  rekurzivna.
 [*----------------------------------------------------------------------------*)
 
-let reverse _ = ()
+let reverse seznam = 
+  let rec pomozna lst = match lst with
+    | [] -> []
+    | [x] -> [x]
+    | x :: xs -> pomozna xs @ [x]
+in pomozna seznam
 
 (*----------------------------------------------------------------------------*
  ## Funkcija `repeat`
@@ -28,7 +33,10 @@ let reverse _ = ()
   vrednosti `n` funkcija vrne prazen seznam.
 [*----------------------------------------------------------------------------*)
 
-let rec repeat _ _ = ()
+let rec repeat x n = match (x, n) with
+  | (x, 0) -> []
+  | (x, n) -> if n < 0 then [] else
+    x :: repeat x (n - 1)
 
 let primer_repeat_1 = repeat "A" 5
 (* val primer_repeat_1 : string list = ["A"; "A"; "A"; "A"; "A"] *)
@@ -47,7 +55,14 @@ let primer_repeat_2 = repeat "A" (-2)
  funkcije `List.init`.
 [*----------------------------------------------------------------------------*)
 
-let range _ = ()
+let range (stevilo) = 
+  let rec stej n sez acc = match n with
+    | 0 -> [0]
+    | n -> if n < 0 then [] else
+      if acc > n then sez else
+        acc :: stej n sez (acc + 1) @ sez
+  in stej stevilo [] 0
+
 
 let primer_range = range 10
 (* val primer_range : int list = [0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10] *)
