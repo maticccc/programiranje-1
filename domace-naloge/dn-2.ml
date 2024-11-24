@@ -156,7 +156,7 @@ type instruction =
  berljivih oznak kot so `main`, `fib` in `.fib_end` bomo obravnavali kasneje.
 [*----------------------------------------------------------------------------*)
 
-(* let fibonacci n = [
+let fibonacci n = [
   JMP (Address 20);       (* JMP main *)
 
 (* fib: *)
@@ -200,7 +200,7 @@ type instruction =
   MOV (A, Const n);       (* MOV A, n *)
   CALL (Address 1);       (* CALL fib *)
   HLT;                    (* HLT *)
-] *)
+] 
 (* val fibonacci : int -> instruction list = <fun> *)
 
 (* let primer_tipi_5 = fibonacci 10 *)
@@ -522,12 +522,12 @@ Failure "Sklad je prazen. Ni bilo mogoče odstraniti vrednosti s sklada".*)
 
 (* POZOR: pri tej funckiji so spori z vgrajeno funkcijo compare, zato v terminalu vrne napako, ko jo pokličem *)
 (* sicer pa mislim, da je funkcija pravilno definirana *)
-let comparee (s : state) (in1 : int) (in2 : int) : state = 
+let compare (s : state) (in1 : int) (in2 : int) : state = 
   let updated_zero = in1 = in2 in
   let updated_carry = in1 < in2 in
   { s with zero = updated_zero; carry = updated_carry}
 let primer_izvajanje_12 =
-  comparee empty 24 42 
+  compare empty 24 42 
 (* val primer_izvajanje_12 : state =
   {instructions = [||]; a = 0; b = 0; c = 0; d = 0; ip = Address 0;
    zero = false; carry = true; stack = []} *)
@@ -563,10 +563,11 @@ let primer_izvajanje_14 =
  na dani naslov in na sklad doda naslednji naslov.
 [*----------------------------------------------------------------------------*)
 
-let call _ _ = ()
+let call (s : state) (a : address) : state = match s.ip with
+  | Address n -> { s with ip = a; stack = n + 1 :: s.stack }
 
-(* let primer_izvajanje_15 =
-  call { empty with ip = Address 42 } (Address 10) *)
+let primer_izvajanje_15 =
+  call { empty with ip = Address 42 } (Address 10)
 (* val primer_izvajanje_15 : state =
   {instructions = [||]; a = 0; b = 0; c = 0; d = 0; ip = Address 10;
    zero = false; carry = false; stack = [43]} *)
@@ -576,7 +577,7 @@ let call _ _ = ()
  ki je na vrhu sklada, in odstrani ta naslov s sklada.
 [*----------------------------------------------------------------------------*)
 
-let return _ = ()
+let return s : state  = s
 
 (* let primer_izvajanje_16 =
   return { empty with ip = (Address 100); stack = [42; 43; 44] } *)
@@ -626,7 +627,34 @@ let return _ = ()
   | HLT -> failwith "Cannot execute instruction" *)
 (* val run_instruction : state -> instruction -> state = <fun> *)
 
-let run_instruction _ _ = ()
+let run_instruction (s : state) (i : instruction) : state = match i with
+    | MOV (reg, exp) -> write_register s reg (read_expression s exp) |> proceed
+    | ADD (reg, exp) -> perform_binop ( + ) s reg exp |> proceed
+    | SUB (reg, exp) -> perform_binop ( - ) s reg exp |> proceed
+    | INC reg -> perform_unop succ s reg |> proceed
+    | DEC reg -> perform_unop (fun x -> x - 1) s reg |> proceed
+    | MUL exp -> perform_binop ( * ) s A exp |> proceed
+    | DIV exp -> perform_binop ( / ) s A exp |> proceed
+    | AND (reg, exp) -> perform_binop ( land ) s reg exp |> proceed
+    | OR (reg, exp) -> perform_binop ( lor ) s reg exp |> proceed
+    | XOR (reg, exp) -> perform_binop ( lxor ) s reg exp |> proceed
+    | NOT reg -> perform_unop lnot s reg |> proceed
+    | CMP (reg, exp) -> compare s (read_register s reg) (read_expression s exp) |> proceed
+    | JMP add -> jump s add |> proceed
+    | JA add -> conditional_jump s add (not s.carry && not s.zero) |> proceed
+    | JAE add -> conditional_jump s add (s.zero && not s.carry) |> proceed
+    | JB add -> conditional_jump s add (not s.zero && s.carry) |> proceed
+    | JBE add -> conditional_jump s add (s.zero && s.carry) |> proceed
+    | JE add -> conditional_jump s add s.zero |> proceed
+    | JNE add -> conditional_jump s add (not s.zero) |> proceed
+    | CALL add -> call s add |> proceed
+    | RET -> return s |> proceed
+    | PUSH exp -> push_stack s (read_expression s exp) |> proceed
+    | POP reg -> let n, s' = pop_stack s in 
+    write_register s' reg n |> proceed    
+    | HLT -> failwith "Cannot execute instruction"
+
+
 
 (*----------------------------------------------------------------------------*
  Napišite funkcijo `run_program : state -> state`, ki izvaja ukaze v danem
