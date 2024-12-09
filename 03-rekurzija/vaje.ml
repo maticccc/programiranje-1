@@ -7,7 +7,9 @@
  knjižnice. Kjer to kažejo primeri, napišite tudi repno rekurzivne različice z
  imenom `ime_funkcije_tlrec`.
 [*----------------------------------------------------------------------------*)
-
+let rec sum lst = match lst with
+  | [] -> 0
+  | x :: xs -> x + sum xs
 (*----------------------------------------------------------------------------*
  ## Funkcija `reverse`
 [*----------------------------------------------------------------------------*)
