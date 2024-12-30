@@ -1,5 +1,5 @@
 set_option autoImplicit false
-
+set_option linter.unusedVariables false
 /------------------------------------------------------------------------------
  ## Naravna števila
 
@@ -45,7 +45,11 @@ theorem cisto_pravi_gauss : (n : Nat) → vsota_prvih n = (n * (n + 1)) / 2 :=
     | succ k ih =>
       simp[vsota_prvih]
       rw[ih]
+      rw[Nat.add_comm]
+      rw[Nat.mul_comm]
       sorry
+
+
 /------------------------------------------------------------------------------
  ## Vektorji
 
@@ -189,10 +193,28 @@ theorem visina_zrcali :
       rw[Nat.max_comm]
 
 
-theorem elementi_elementi' :
-  {A : Type} → (t : Drevo A) →
+theorem aux_elementi' : {A : Type} → (t : Drevo A) → (acc : List A) →
+  -- želim si dokazati to enakost, ki bo kasneje pomagala pri dokazu enakosti obeh funkcij
+  elementi'.aux t acc = elementi t ++ acc :=
+  by
+    intros A t
+    induction t with
+    | prazno =>
+      intro acc
+      -- za prazno drevo, sta rezultata funkcij enaka
+      simp[elementi'.aux, elementi]
+    | sestavljeno l x d ih_l ih_d =>
+      intro acc
+      -- poenostavim z obema funkcijama in nato upoštevam obe indukcijski predpostavki
+      simp[elementi'.aux, elementi]
+      rw[ih_d]
+      rw[ih_l]
+
+theorem elementi_elementi' : {A : Type} → (t : Drevo A) →
   elementi t = elementi' t :=
   by
     intros A t
-    sorry
--- najprej pokaži, da pomožna funkcija aux deluje pravilno in nato funkciji primerjaj še med seboj
+    simp[elementi']
+    -- uporabim prej dokazano enakost
+    have h := aux_elementi' t []
+    simp[h]
