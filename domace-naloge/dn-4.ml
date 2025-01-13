@@ -47,7 +47,9 @@ end
 module Tape : TAPE = struct
   type t = unit
 
-  let make _ = ()
+  let make str = ()
+
+
   let move _ _ = ()
   let read _ = ' '
   let write _ _ = ()
