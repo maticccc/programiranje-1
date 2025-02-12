@@ -21,6 +21,24 @@
 #
 ###############################################################################
 
+def merge(target, lst1, lst2):
+    
+    for i in range(0, max(len(lst1), len(lst2))):
+
+        if lst1[i] > lst2[i]:
+            target[i] = lst2[i]
+
+        elif lst1[i] < lst2[i]:
+            target[i] = lst1[i]
+        
+        else:
+            target[i] = lst1[i]
+
+    return target
+
+
+ 
+
 
 ###############################################################################
 # Tabelo želimo urediti z zlivanjem (merge sort). Tabelo razdelimo na polovici,

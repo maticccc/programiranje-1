@@ -36,7 +36,6 @@ type state = string
 
 module type TAPE = sig
   type t
-
   val make : string -> t
   val move : direction -> t -> t
   val read : t -> char
@@ -44,16 +43,41 @@ module type TAPE = sig
   val print : t -> unit
 end
 
+
 module Tape : TAPE = struct
-  type t = unit
 
-  let make str = ()
+  type t = char list * char * char list
+
+  let make str = match List.of_seq (String.to_seq str) with 
+    | [] -> ([], ' ', [])
+    | x :: xs -> ([], x, xs)
 
 
-  let move _ _ = ()
-  let read _ = ' '
-  let write _ _ = ()
-  let print _ = ()
+  let move dir (left, head, right) =
+    match dir with
+    | Left -> (
+        match left with
+        | [] -> ([], ' ', head :: right)
+        | h :: t -> (t, h, head :: right)
+      )
+    | Right -> (
+        match right with
+        | [] -> (head :: left, ' ', [])
+        | h :: t -> (head :: left, h, t)
+      )
+
+  let read (_, x, _) = x
+
+  let write chr t = match t with
+    | (xs, x, ys) -> (xs, chr, ys)
+
+
+  let print: t -> unit = function
+    | (xs, x, ys) -> 
+      let turing_str = String.of_seq (List.to_seq (List.rev xs @ [x] @ ys)) in
+      let indeks_glave = String.length (String.of_seq (List.to_seq (List.rev xs))) in
+      Printf.printf "%s\n%s\n" turing_str (String.make indeks_glave ' ' ^ "^")
+
 end
 
 let primer_trak = Tape.(
